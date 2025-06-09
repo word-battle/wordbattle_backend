@@ -1,6 +1,7 @@
 package com.jybeomss1.wordbattle_backend.user.adapter.out.persistence;
 
 import com.jybeomss1.wordbattle_backend.common.util.BaseTimeEntity;
+import com.jybeomss1.wordbattle_backend.user.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,12 @@ public class UserJpaEntity extends BaseTimeEntity {
     @Column
     private String name;
 
+    @Column
+    private String email;
+
+    @Column
+    private String password;
+
     @Column(name = "social_type")
     private String socialType;
 
@@ -35,5 +42,15 @@ public class UserJpaEntity extends BaseTimeEntity {
     @PrePersist
     public void prePersist() {
         this.deleted = false;
+    }
+
+    public User toDto() {
+        return new User(this);
+    }
+
+    public UserJpaEntity(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
     }
 }
