@@ -29,7 +29,7 @@ jobs:
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build with Gradle
-        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        run: ./gradlew clean bootJar
 
       - name: Docker login
         uses: docker/login-action@v2
@@ -68,7 +68,11 @@ jobs:
       - name: Stop existing container (if exists)
         run: |
           if sudo docker ps -a --format '{{.Names}}' | grep -Eq '^word_battle_backend$'; then
-            sudo docker stop word_battle_backend
+            echo "✅ Stopping existing container..."
+            sudo docker stop word_battle_backend || true
+            sudo docker rm word_battle_backend || true
+          else
+            echo "ℹ️ No existing container named 'word_battle_backend' found."
           fi
         continue-on-error: true
 
