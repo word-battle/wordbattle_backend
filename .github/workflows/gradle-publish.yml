@@ -68,7 +68,8 @@ jobs:
       - name: Stop existing container (if exists)
         run: |
           if sudo docker ps -a --format '{{.Names}}' | grep -Eq '^word_battle_backend$'; then
-            sudo docker stop word_battle_backend
+            sudo docker stop word_battle_backend \
+            sudo docker rm word_battle_backend
           fi
         continue-on-error: true
 
