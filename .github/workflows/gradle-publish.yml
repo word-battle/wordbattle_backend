@@ -74,22 +74,6 @@ jobs:
       - name: Delete Old Docker Images
         run: sudo docker image prune -f
 
-      - name: Notify Kakao (Success)
-        if: success()
-        run: |
-          curl -v -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
-            -H "Authorization: Bearer ${{ secrets.KAKAO_ACCESS_TOKEN }}" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d 'template_object={"object_type":"text","text":"✅ WordBattle 배포 성공!","link":{"web_url":"http://your-server-url"}}'
-
-      - name: Notify Kakao (Failure)
-        if: failure()
-        run: |
-          curl -v -X POST "https://kapi.kakao.com/v2/api/talk/memo/default/send" \
-            -H "Authorization: Bearer ${{ secrets.KAKAO_ACCESS_TOKEN }}" \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d 'template_object={"object_type":"text","text":"❌ WordBattle 배포 실패 😢 확인 필요","link":{"web_url":"https://github.com/${{ github.repository }}/actions"}}'
-
       - name: Bump version in .env
         if: success() && github.actor != 'github-actions[bot]'
         run: |
