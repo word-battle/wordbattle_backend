@@ -1,64 +1,61 @@
-name: Java CI with Gradle and Kakao Alert and Version Bump  # 워크플로 이름
+name: Java CI with Gradle and Kakao Alert and Version Bump
 
 on:
-  push:  # main 브랜치로 푸시될 때 실행
+  push:
     branches: ["main"]
-    paths-ignore:  # .env 파일만 바뀐 커밋은 무시
-      - '.env'
+    paths-ignore:
+      - '.env'  # .env만 바뀐 커밋은 무시하여 루프 방지
 
 permissions:
-  contents: write  # GitHub Actions가 커밋 및 푸시할 수 있도록 권한 부여
+  contents: write
 
 jobs:
   build-docker-image:
-    runs-on: ubuntu-latest  # GitHub 호스팅 러너에서 실행
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3  # 저장소 코드 체크아웃
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'  # JDK 17 설치
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Load IMAGE_TAG from .env
         id: load_tag
         run: |
-          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)  # .env에서 IMAGE_TAG 값 읽기
+          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)
           echo "Loaded IMAGE_TAG: $TAG"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT  # 다음 스텝에서 사용할 수 있도록 출력값으로 설정
-
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
       - name: Grant execute permission for Gradlew
-        run: chmod +x ./gradlew  # gradlew 실행 권한 부여
+        run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew clean bootJar  # 프로젝트 빌드 및 jar 생성
+        run: ./gradlew clean bootJar
 
       - name: Docker login
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}  # 도커허브 로그인
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }} .  
-        # Docker 이미지 빌드 및 태그 지정 (예: user/word_battle_backend:1)
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }} .
 
       - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}  
-        # DockerHub에 이미지 푸시
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
   run-docker-image-on-ec2:
-    needs: build-docker-image  # 이전 작업(build-docker-image)이 성공해야 실행됨
-    runs-on: self-hosted  # EC2에 등록된 self-hosted 러너에서 실행
+    needs: build-docker-image
+    runs-on: self-hosted
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3  # 저장소 코드 체크아웃
+        uses: actions/checkout@v3
 
       - name: Load IMAGE_TAG from .env
         id: load_tag
         run: |
-          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)  # .env에서 IMAGE_TAG 값 읽기
+          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Docker login
@@ -68,37 +65,36 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Pull Docker Image
-        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}  
-        # 도커허브에서 이미지 받아오기
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
       - name: Stop existing container (if exists)
         run: |
           if sudo docker ps -a --format '{{.Names}}' | grep -Eq '^word_battle_backend$'; then
-            echo "Stopping existing container..."
-            sudo docker stop word_battle_backend || true  # 기존 컨테이너 중지
-            sudo docker rm word_battle_backend || true    # 기존 컨테이너 삭제
+            echo "✅ Stopping existing container..."
+            sudo docker stop word_battle_backend || true
+            sudo docker rm word_battle_backend || true
           else
-            echo "ℹNo existing container named 'word_battle_backend' found."
-        continue-on-error: true  # 에러가 나도 다음 단계로 진행
+            echo "ℹ️ No existing container named 'word_battle_backend' found."
+          fi
+        continue-on-error: true
 
       - name: Run Docker Container
         run: |
           sudo docker run \
-            --name word_battle_backend \  # 컨테이너 이름
-            -e DB_URL=${{ secrets.DB_URL }} \  # DB 환경변수 주입
+            --name word_battle_backend \
+            -e DB_URL=${{ secrets.DB_URL }} \
             -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e USE_PROFILE=server \  # Spring profile 설정
-            --restart unless-stopped \  # 자동 재시작 설정
-            -d -p 8080:8080 \  # 포트 매핑
-            ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}  
-            # 컨테이너 실행
+            -e USE_PROFILE=server \
+            --restart unless-stopped \
+            -d -p 8080:8080 \
+            ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
       - name: Delete Old Docker Images
-        run: sudo docker image prune -f  # 사용하지 않는 이미지 삭제
+        run: sudo docker image prune -f
 
       - name: Bump IMAGE_TAG in .env
-        if: success() && github.actor != 'github-actions[bot]'  # 성공한 경우, 봇이 아닐 때만
+        if: success() && github.actor != 'github-actions[bot]'
         run: |
           file=".env"
           if [ ! -f "$file" ]; then
@@ -106,13 +102,13 @@ jobs:
             exit 1
           fi
 
-          tag=$(grep IMAGE_TAG $file | cut -d '=' -f2)  # 현재 태그 읽기
-          new_tag=$((tag + 1))  # 태그 1 증가
-          echo "IMAGE_TAG=$new_tag" > $file  # .env 파일 업데이트
+          tag=$(grep IMAGE_TAG $file | cut -d '=' -f2)
+          new_tag=$((tag + 1))
+          echo "IMAGE_TAG=$new_tag" > $file
           echo "Updated IMAGE_TAG to $new_tag"
 
-          git config user.name "github-actions[bot]"  # 커밋 정보 설정
+          git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .env
-          git commit -m "ci: bump IMAGE_TAG to $new_tag"  # 커밋 메시지
-          git push origin main  # main 브랜치로 푸시
+          git commit -m "ci: bump IMAGE_TAG to $new_tag"
+          git push origin main
