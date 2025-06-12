@@ -95,7 +95,7 @@ jobs:
             -e DB_URL=${{ secrets.DB_URL }} \
             -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e USE_PROFILE=server \
+            -e SPRING_PROFILES_ACTIVE=server \
             --restart unless-stopped \
             -d -p 8080:8080 \
             ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
