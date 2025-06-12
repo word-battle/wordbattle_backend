@@ -9,9 +9,6 @@ on:
 permissions:
   contents: write
 
-env:
-  IMAGE_TAG: ${{ github.sha }}
-
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
@@ -24,8 +21,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Load IMAGE_TAG from .env
+        id: load_tag
+        run: |
+          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)
+          echo "Loaded IMAGE_TAG: $TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
       - name: Build with Gradle
         uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+        with:
+          arguments: clean build
 
       - name: Docker login
         uses: docker/login-action@v2
@@ -34,15 +40,24 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ env.IMAGE_TAG }} .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }} .
 
       - name: Push Docker Image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ env.IMAGE_TAG }}
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
   run-docker-image-on-ec2:
     needs: build-docker-image
     runs-on: self-hosted
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Load IMAGE_TAG from .env
+        id: load_tag
+        run: |
+          TAG=$(grep IMAGE_TAG .env | cut -d '=' -f2)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
       - name: Docker login
         uses: docker/login-action@v2
         with:
@@ -50,7 +65,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Pull Docker Image
-        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ env.IMAGE_TAG }}
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
       - name: Stop existing container (if exists)
         run: |
@@ -69,12 +84,12 @@ jobs:
             -e USE_PROFILE=server \
             --restart unless-stopped \
             -d -p 8080:8080 \
-            ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/word_battle_backend:${{ steps.load_tag.outputs.tag }}
 
       - name: Delete Old Docker Images
         run: sudo docker image prune -f
 
-      - name: Bump version in .env
+      - name: Bump IMAGE_TAG in .env
         if: success() && github.actor != 'github-actions[bot]'
         run: |
           file=".env"
@@ -83,16 +98,13 @@ jobs:
             exit 1
           fi
 
-          version=$(grep VERSION $file | cut -d '=' -f2)
-          IFS='.' read -r major minor patch <<< "$version"
-          patch=$((patch + 1))
-          new_version="$major.$minor.$patch"
-
-          echo "VERSION=$new_version" > $file
-          echo "Updated version to $new_version"
+          tag=$(grep IMAGE_TAG $file | cut -d '=' -f2)
+          new_tag=$((tag + 1))
+          echo "IMAGE_TAG=$new_tag" > $file
+          echo "Updated IMAGE_TAG to $new_tag"
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .env
-          git commit -m "ci: bump version to $new_version"
+          git commit -m "ci: bump IMAGE_TAG to $new_tag"
           git push origin main
