@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM openjdk:21
 EXPOSE 8080
 RUN mkdir /app
 VOLUME /app
