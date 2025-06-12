@@ -5,10 +5,6 @@ HELP.md
 !**/src/test/**/build/
 
 
-### add
-src/main/resources/application-server.properties
-
-
 ### STS ###
 .apt_generated
 .classpath
