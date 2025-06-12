@@ -68,8 +68,11 @@ jobs:
       - name: Stop existing container (if exists)
         run: |
           if sudo docker ps -a --format '{{.Names}}' | grep -Eq '^word_battle_backend$'; then
-            sudo docker stop word_battle_backend \
-            sudo docker rm word_battle_backend
+            echo "✅ Stopping existing container..."
+            sudo docker stop word_battle_backend || true
+            sudo docker rm word_battle_backend || true
+          else
+            echo "ℹ️ No existing container named 'word_battle_backend' found."
           fi
         continue-on-error: true
 
