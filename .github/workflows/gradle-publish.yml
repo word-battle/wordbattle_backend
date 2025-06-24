@@ -106,7 +106,7 @@ jobs:
       - name: Bump IMAGE_TAG in .env
         run: |
           # 1) 먼저 리모트 최신 커밋을 가져와 리베이스
-          git pull --rebase origin master
+          git pull --rebase origin main
       
           # 2) .env 파일 수정
           file=".env"
