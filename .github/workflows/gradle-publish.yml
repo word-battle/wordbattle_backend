@@ -104,21 +104,24 @@ jobs:
         run: sudo docker image prune -f
 
       - name: Bump IMAGE_TAG in .env
-        if: success() && github.actor != 'github-actions[bot]'
         run: |
+          # 1) 먼저 리모트 최신 커밋을 가져와 리베이스
+          git pull --rebase origin main
+      
+          # 2) .env 파일 수정
           file=".env"
           if [ ! -f "$file" ]; then
             echo ".env 파일이 존재하지 않습니다."
             exit 1
           fi
-
           tag=$(grep IMAGE_TAG $file | cut -d '=' -f2)
           new_tag=$((tag + 1))
           echo "IMAGE_TAG=$new_tag" > $file
           echo "Updated IMAGE_TAG to $new_tag"
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      
+          # 3) 커밋 & 푸시
           git add .env
           git commit -m "ci: bump IMAGE_TAG to $new_tag"
-          git push origin main
+          git push origin master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
