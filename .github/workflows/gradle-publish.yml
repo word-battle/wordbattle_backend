@@ -122,6 +122,6 @@ jobs:
           # 3) 커밋 & 푸시
           git add .env
           git commit -m "ci: bump IMAGE_TAG to $new_tag"
-          git push origin master
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
