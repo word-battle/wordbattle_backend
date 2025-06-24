@@ -125,6 +125,3 @@ jobs:
           git push origin master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          git add .env
-          git commit -m "ci: bump IMAGE_TAG to $new_tag"
-          git push origin main
