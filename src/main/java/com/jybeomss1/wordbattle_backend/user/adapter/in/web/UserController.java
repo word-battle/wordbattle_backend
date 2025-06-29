@@ -19,7 +19,7 @@ public class UserController {
     private final UserJoinUseCase userJoinUseCase;
     private final UserLoginUseCase userLoginUseCase;
 
-    @PostMapping
+    @PostMapping("join")
     @UserJoinSwaggerDoc
     public ResponseEntity<String> join(@RequestBody UserJoinRequest request) {
         userJoinUseCase.join(request);
