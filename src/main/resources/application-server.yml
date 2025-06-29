@@ -25,9 +25,8 @@ spring:
 
   data:
     redis:
-      host: host
+      host: ${SPRING_REDIS_HOST:redis}  # 기본값도 redis
       port: 6379
-      timeout: 6000
 
   security:
     oauth2:
