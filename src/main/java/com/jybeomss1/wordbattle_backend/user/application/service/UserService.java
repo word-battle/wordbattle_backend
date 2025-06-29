@@ -1,7 +1,6 @@
 package com.jybeomss1.wordbattle_backend.user.application.service;
 
 import com.jybeomss1.wordbattle_backend.common.exceptions.ExistUserException;
-import com.jybeomss1.wordbattle_backend.common.exceptions.NotFoundUserException;
 import com.jybeomss1.wordbattle_backend.jwt.JwtTokenProvider;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserJoinUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLoginUseCase;
@@ -11,25 +10,21 @@ import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.UserJoinRequest;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.response.TokenResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserJoinUseCase, UserLoginUseCase, UserDetailsService {
+public class UserService implements UserJoinUseCase, UserLoginUseCase {
     private final UserPort userPort;
-    private final AuthenticationConfiguration authenticationConfiguration;
+    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void join(UserJoinRequest request) {
@@ -38,18 +33,11 @@ public class UserService implements UserJoinUseCase, UserLoginUseCase, UserDetai
             throw new ExistUserException();
         }
 
-        userPort.save(request.getEmail(), request.getName(), request.getPassword());
+        userPort.save(request.getEmail(), request.getName(), passwordEncoder.encode(request.getPassword()));
     }
 
     @Override
     public TokenResponse login(String email, String password) {
-        AuthenticationManager authenticationManager;
-        try {
-            authenticationManager = authenticationConfiguration.getAuthenticationManager();
-        } catch (Exception e) {
-            throw new RuntimeException("인증 매니저 가져오기 실패", e);
-        }
-
         Authentication authenticate = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
@@ -63,11 +51,5 @@ public class UserService implements UserJoinUseCase, UserLoginUseCase, UserDetai
         userPort.saveRefreshToken(userId, refreshToken);
 
         return new TokenResponse(accessToken, refreshToken);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userPort.findByEmail(email).orElseThrow(NotFoundUserException::new);
-        return new CustomUserDetails(user);
     }
 }
