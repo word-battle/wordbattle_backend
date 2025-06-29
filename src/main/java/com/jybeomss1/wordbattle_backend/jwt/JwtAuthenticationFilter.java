@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -26,8 +27,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        String uri = request.getRequestURI();
+
+        if (Objects.equals(uri, "/api/v1/user/login") || Objects.equals(uri, "/api/v1/user/join")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String accessToken = resolveToken(request);
         String refreshToken = resolveRefreshToken(request);
+
 
         try {
             if (accessToken != null && jwtTokenProvider.isValidToken(accessToken)) {
