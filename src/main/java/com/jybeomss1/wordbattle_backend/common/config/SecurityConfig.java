@@ -2,9 +2,11 @@ package com.jybeomss1.wordbattle_backend.common.config;
 
 import com.jybeomss1.wordbattle_backend.jwt.JwtAuthenticationFilter;
 import com.jybeomss1.wordbattle_backend.jwt.JwtTokenProvider;
-import com.jybeomss1.wordbattle_backend.user.application.port.out.UserPort;
-import com.jybeomss1.wordbattle_backend.user.domain.User;
-import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
+import com.jybeomss1.wordbattle_backend.oauth.application.service.CustomOAuth2UserService;
+import com.jybeomss1.wordbattle_backend.oauth.application.service.CustomOidcUserService;
+import com.jybeomss1.wordbattle_backend.oauth.application.service.OAuth2AuthenticationSuccessHandler;
+import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.RedisRefreshTokenRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,42 +17,57 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserPort userPort;
+    private final UserDetailsService userDetailsService;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
+    private final OAuth2AuthenticationSuccessHandler successHandler;
+    private final CustomOidcUserService customOidcUserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/user/login", "/api/v1/user/join",
+                                "/login", "/join",
                                 "/swagger-ui.html",           // 리디렉트용
                                 "/swagger-ui/**",             // Swagger UI 리소스
                                 "/api-docs",               // 문서 루트
                                 "/api-docs/**",            // 문서 상세
                                 "/swagger-resources/**",      // 부가 리소스
                                 "/webjars/**"         ,
-                                "/.well-known/appspecific/com.chrome.devtools.json"// JS/CSS 등 웹 리소스
+                                "/.well-known/appspecific/com.chrome.devtools.json", // JS/CSS 등 웹 리소스,
+                                "/api/v1/oauth2/authorize/**",   // ← 여기에 추가
+                                "/api/v1/oauth2/callback/**"     // ← 여기에 추가
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(endpoint -> endpoint
+                                .baseUri("/api/v1/oauth2/authorize")
+                        )
+                        .redirectionEndpoint(redir -> redir
+                                .baseUri("/api/v1/oauth2/callback/*")
+                        )
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.oidcUserService(customOidcUserService)
+                        )
+                        .successHandler(successHandler)
+                        .failureHandler((req, res, ex) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                        )
+                )
+
                 .addFilterBefore(
-                        new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService(), userPort),
+                        new JwtAuthenticationFilter(jwtTokenProvider, userDetailsService, redisRefreshTokenRepository),
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -63,23 +80,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> {
-            User user = userPort.findByEmail(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-            return new CustomUserDetails(user);
-        };
-    }
-
-//    @Bean
-//    public OAuth2UserService<OAuth2UserRequest, OAuth2User> customOAuth2UserService() {
-//        return new CustomOAuth2UserService(); // 구현 필요
-//    }
 }

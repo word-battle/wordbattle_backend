@@ -1,6 +1,5 @@
 package com.jybeomss1.wordbattle_backend.user.adapter.out.persistence;
 
-import com.jybeomss1.wordbattle_backend.jwt.JwtTokenProvider;
 import com.jybeomss1.wordbattle_backend.user.application.port.out.UserPort;
 import com.jybeomss1.wordbattle_backend.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserJpaAdapter implements UserPort {
     private final UserJpaRepository userJpaRepository;
-    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Override
     public Optional<User> findByEmail(String email) {
@@ -25,13 +23,4 @@ public class UserJpaAdapter implements UserPort {
         userJpaRepository.save(new UserJpaEntity(email, name, password));
     }
 
-    @Override
-    public void saveRefreshToken(String userId, String refreshToken) {
-        redisRefreshTokenRepository.save(userId, refreshToken, JwtTokenProvider.REFRESH_TOKEN_EXP);
-    }
-
-    @Override
-    public boolean isValidRefreshToken(String userId, String refreshToken) {
-        return redisRefreshTokenRepository.isValid(userId, refreshToken);
-    }
 }

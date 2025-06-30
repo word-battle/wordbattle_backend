@@ -3,10 +3,7 @@ package com.jybeomss1.wordbattle_backend.user.adapter.out.persistence;
 import com.jybeomss1.wordbattle_backend.common.util.BaseTimeEntity;
 import com.jybeomss1.wordbattle_backend.user.domain.User;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -15,6 +12,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class UserJpaEntity extends BaseTimeEntity {
     @Id
     @GeneratedValue

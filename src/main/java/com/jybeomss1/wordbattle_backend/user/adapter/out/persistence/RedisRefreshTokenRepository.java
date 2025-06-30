@@ -12,9 +12,9 @@ public class RedisRefreshTokenRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private static final String REDIS_REFRESH_TOKEN = "REDIS_REFRESH_TOKEN";
 
-    public void save(String userId, String refreshToken, long ttlMillis) {
+    public void save(String userId, String token, long ttlMillis) {
         String key = REDIS_REFRESH_TOKEN + userId;
-        redisTemplate.opsForValue().set(key, refreshToken, ttlMillis, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, token, ttlMillis, TimeUnit.MILLISECONDS);
     }
 
     public boolean isValid(String userId, String refreshToken) {
@@ -24,5 +24,9 @@ public class RedisRefreshTokenRepository {
 
     public void delete(String userId) {
         redisTemplate.delete(REDIS_REFRESH_TOKEN + userId);
+    }
+
+    public boolean getKey(String blackListKey) {
+        return redisTemplate.hasKey(blackListKey);
     }
 }

@@ -1,5 +1,6 @@
 package com.jybeomss1.wordbattle_backend.common.annotation;
 
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

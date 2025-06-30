@@ -1,7 +1,9 @@
 package com.jybeomss1.wordbattle_backend.jwt;
 
-import com.jybeomss1.wordbattle_backend.user.application.port.out.UserPort;
-import com.jybeomss1.wordbattle_backend.user.application.service.UserService;
+
+import com.jybeomss1.wordbattle_backend.common.exceptions.InvalidatedTokenException;
+import com.jybeomss1.wordbattle_backend.common.exceptions.RevokedTokenException;
+import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.RedisRefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +22,7 @@ import java.util.Objects;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-    private final UserPort userPort;
+    private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -34,25 +36,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = resolveToken(request);
-        String refreshToken = resolveRefreshToken(request);
-
+        String accessToken  = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
+        String refreshToken = jwtTokenProvider.resolveRefreshToken(request.getHeader("X-Refresh-Token"));
 
         try {
             if (accessToken != null && jwtTokenProvider.isValidToken(accessToken)) {
+                // 토큰이 블랙리스트에 올라가 있는지 먼저 확인
+                String jti = jwtTokenProvider.getJti(accessToken);
+                if (redisRefreshTokenRepository.getKey("blacklist:" + jti)) {
+                    throw new RevokedTokenException();
+                }
+
+                // 블랙리스트가 아니면 정상 인증
                 String userId = jwtTokenProvider.getUserId(accessToken);
                 authenticate(userId);
-            } else if (accessToken != null && jwtTokenProvider.isExpired(accessToken) && refreshToken != null) {
-                // accessToken 만료, refreshToken 유효한지 확인
-                String userId = jwtTokenProvider.getUserId(refreshToken);
 
-                if (userPort.isValidRefreshToken(userId, refreshToken)) {
-                    // refresh 유효 → 새 access 발급
+            } else if (accessToken != null && jwtTokenProvider.isExpired(accessToken)
+                    && refreshToken != null) {
+                // accessToken 만료된 경우, refreshToken 으로 교체 발급 로직
+                String userId = jwtTokenProvider.getUserId(refreshToken);
+                if (jwtTokenProvider.isValidRefreshToken(userId, refreshToken)) {
                     String newAccessToken = jwtTokenProvider.createAccessToken(userId);
-                    response.setHeader("Authorization", "Bearer " + newAccessToken); // 프론트에서 이걸 다시 저장
+                    response.setHeader("Authorization", "Bearer " + newAccessToken);
                     authenticate(userId);
                 } else {
-                    throw new RuntimeException("리프레시 토큰이 유효하지 않습니다.");
+                    throw new InvalidatedTokenException();
                 }
             }
         } catch (Exception e) {
@@ -65,20 +73,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+
     private void authenticate(String userId) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
-    }
-
-    private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        return (bearer != null && bearer.startsWith("Bearer ")) ? bearer.substring(7) : null;
-    }
-
-    private String resolveRefreshToken(HttpServletRequest request) {
-        String token = request.getHeader("X-Refresh-Token");
-        return (token != null && token.startsWith("Bearer ")) ? token.substring(7) : null;
     }
 }
