@@ -37,7 +37,8 @@ public class SecurityConfig {
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/login", "/join",
+                                "/api/v1/user/join",        // ✅ 일반 회원가입 허용
+                                "/api/v1/user/login",
                                 "/swagger-ui.html",           // 리디렉트용
                                 "/swagger-ui/**",             // Swagger UI 리소스
                                 "/api-docs",               // 문서 루트
