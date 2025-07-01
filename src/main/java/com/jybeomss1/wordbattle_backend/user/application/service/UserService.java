@@ -1,14 +1,12 @@
 package com.jybeomss1.wordbattle_backend.user.application.service;
 
 import com.jybeomss1.wordbattle_backend.common.exceptions.ExistUserException;
-import com.jybeomss1.wordbattle_backend.common.exceptions.NotFoundUserException;
 import com.jybeomss1.wordbattle_backend.jwt.JwtTokenProvider;
 import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.RedisRefreshTokenRepository;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserJoinUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLoginUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLogoutUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.out.UserPort;
-import com.jybeomss1.wordbattle_backend.user.domain.User;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.UserJoinRequest;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.response.TokenResponse;
@@ -17,49 +15,38 @@ import io.jsonwebtoken.io.Decoders;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserJoinUseCase, UserLoginUseCase, UserLogoutUseCase, UserDetailsService {
+public class UserService implements UserJoinUseCase, UserLoginUseCase, UserLogoutUseCase {
     private final UserPort userPort;
-    private final AuthenticationConfiguration authenticationConfiguration;
+    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void join(UserJoinRequest request) {
-        Optional<User> existedUser = userPort.findByEmail(request.getEmail());
-        if (existedUser.isPresent()) {
+        if (userPort.findByEmail(request.getEmail()).isPresent()) {
             throw new ExistUserException();
         }
 
-        userPort.save(request.getEmail(), request.getName(), request.getPassword());
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        userPort.save(request.getEmail(), request.getName(), encodedPassword);
     }
 
     @Override
     public TokenResponse login(String email, String password) {
-        AuthenticationManager authenticationManager;
-        try {
-            authenticationManager = authenticationConfiguration.getAuthenticationManager();
-        } catch (Exception e) {
-            throw new RuntimeException("인증 매니저 가져오기 실패", e);
-        }
-
-        Authentication authenticate = authenticationManager.authenticate(
+        Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)
         );
-
-        CustomUserDetails userDetail = (CustomUserDetails) authenticate.getPrincipal();
-        String userId = userDetail.getUserId();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String userId = userDetails.getUserId();
 
         String accessToken = jwtTokenProvider.createAccessToken(userId);
         String refreshToken = jwtTokenProvider.createRefreshToken(userId);
@@ -87,11 +74,5 @@ public class UserService implements UserJoinUseCase, UserLoginUseCase, UserLogou
         }
 
         redisRefreshTokenRepository.delete(userId);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userPort.findByEmail(email).orElseThrow(NotFoundUserException::new);
-        return new CustomUserDetails(user);
     }
 }
