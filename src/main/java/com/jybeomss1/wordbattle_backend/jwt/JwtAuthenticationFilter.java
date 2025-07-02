@@ -13,11 +13,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -25,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
-    private static final java.util.Set<String> PERMIT_ALL_URIS = java.util.Set.of(
+    private static final Set<String> PERMIT_ALL_URIS = Set.of(
             "/api/v1/user/login",
             "/api/v1/user/join",
             "/swagger-ui.html",
@@ -33,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/.well-known/appspecific/com.chrome.devtools.json"
     );
 
-    private static final java.util.List<String> PERMIT_ALL_PATTERNS = java.util.List.of(
+    private static final List<String> PERMIT_ALL_PATTERNS = List.of(
             "/swagger-ui/**",
             "/api-docs/**",
             "/swagger-resources/**",
