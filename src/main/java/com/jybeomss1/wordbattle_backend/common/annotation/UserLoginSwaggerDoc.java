@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
                         mediaType = "application/json",
                         examples = @ExampleObject(
                                 name = "로그인 실패 예시 응답",
-                                value = "로그인 실패"
+                                value = "{\"code\":\"LOGIN_FAIL\",\"message\":\"로그인 실패\"}"
                         )
                 )
         )

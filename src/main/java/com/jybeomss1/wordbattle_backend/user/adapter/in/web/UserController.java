@@ -2,6 +2,7 @@ package com.jybeomss1.wordbattle_backend.user.adapter.in.web;
 
 import com.jybeomss1.wordbattle_backend.common.annotation.UserJoinSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.annotation.UserLoginSwaggerDoc;
+import com.jybeomss1.wordbattle_backend.common.response.SuccessResponse;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserJoinUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLoginUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLogoutUseCase;
@@ -24,9 +25,9 @@ public class UserController {
 
     @PostMapping("/join")
     @UserJoinSwaggerDoc
-    public ResponseEntity<String> join(@RequestBody UserJoinRequest request) {
+    public ResponseEntity<SuccessResponse> join(@RequestBody UserJoinRequest request) {
         userJoinUseCase.join(request);
-        return ResponseEntity.ok("success");
+        return ResponseEntity.ok(new SuccessResponse("SUCCESS", "회원가입이 성공적으로 처리되었습니다."));
     }
 
     @PostMapping("/login")
@@ -36,11 +37,11 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(
+    public ResponseEntity<SuccessResponse> logout(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestHeader("Authorization") String authorization
     ) {
         userLogoutUseCase.logout(authorization);
-        return ResponseEntity.ok("success");
+        return ResponseEntity.ok(new SuccessResponse("SUCCESS", "로그아웃이 성공적으로 처리되었습니다."));
     }
 }

@@ -1,6 +1,7 @@
 package com.jybeomss1.wordbattle_backend.user.application.service;
 
-import com.jybeomss1.wordbattle_backend.common.exceptions.NotFoundUserException;
+import com.jybeomss1.wordbattle_backend.common.exceptions.BaseException;
+import com.jybeomss1.wordbattle_backend.common.exceptions.ErrorCode;
 import com.jybeomss1.wordbattle_backend.user.application.port.out.UserPort;
 import com.jybeomss1.wordbattle_backend.user.domain.User;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
@@ -18,7 +19,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) {
         User user = userPort.findByEmail(email)
-                .orElseThrow(NotFoundUserException::new);
+                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
         return new CustomUserDetails(user);
     }
 }

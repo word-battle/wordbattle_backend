@@ -1,8 +1,8 @@
 package com.jybeomss1.wordbattle_backend.jwt;
 
 
-import com.jybeomss1.wordbattle_backend.common.exceptions.InvalidatedTokenException;
-import com.jybeomss1.wordbattle_backend.common.exceptions.RevokedTokenException;
+import com.jybeomss1.wordbattle_backend.common.exceptions.BaseException;
+import com.jybeomss1.wordbattle_backend.common.exceptions.ErrorCode;
 import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.RedisRefreshTokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.util.AntPathMatcher;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -24,6 +25,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
+    private static final java.util.Set<String> PERMIT_ALL_URIS = java.util.Set.of(
+            "/api/v1/user/login",
+            "/api/v1/user/join",
+            "/swagger-ui.html",
+            "/api-docs",
+            "/.well-known/appspecific/com.chrome.devtools.json"
+    );
+
+    private static final java.util.List<String> PERMIT_ALL_PATTERNS = java.util.List.of(
+            "/swagger-ui/**",
+            "/api-docs/**",
+            "/swagger-resources/**",
+            "/webjars/**",
+            "/api/v1/oauth2/authorize/**",
+            "/api/v1/oauth2/callback/**"
+    );
+
+    private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -31,12 +51,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String uri = request.getRequestURI();
 
-        if (Objects.equals(uri, "/api/v1/user/login") || Objects.equals(uri, "/api/v1/user/join")) {
+        if (isPermitAllUri(uri)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String accessToken  = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
+        String accessToken = jwtTokenProvider.resolveToken(request.getHeader("Authorization"));
         String refreshToken = jwtTokenProvider.resolveRefreshToken(request.getHeader("X-Refresh-Token"));
 
         try {
@@ -44,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 토큰이 블랙리스트에 올라가 있는지 먼저 확인
                 String jti = jwtTokenProvider.getJti(accessToken);
                 if (redisRefreshTokenRepository.getKey("blacklist:" + jti)) {
-                    throw new RevokedTokenException();
+                    throw new BaseException(ErrorCode.REVOKED_TOKEN);
                 }
 
                 // 블랙리스트가 아니면 정상 인증
@@ -60,7 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.setHeader("Authorization", "Bearer " + newAccessToken);
                     authenticate(userId);
                 } else {
-                    throw new InvalidatedTokenException();
+                    throw new BaseException(ErrorCode.INVALID_TOKEN);
                 }
             }
         } catch (Exception e) {
@@ -79,5 +99,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private boolean isPermitAllUri(String uri) {
+        if (PERMIT_ALL_URIS.contains(uri)) return true;
+        return PERMIT_ALL_PATTERNS.stream().anyMatch(pattern -> pathMatcher.match(pattern, uri));
     }
 }

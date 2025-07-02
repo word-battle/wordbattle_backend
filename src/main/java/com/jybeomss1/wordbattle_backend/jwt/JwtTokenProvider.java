@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ public class JwtTokenProvider {
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     public final String secretKey = Base64.getEncoder().encodeToString("qqwweerrttyyuuiiooppaassddffgghhjjkkllzzxxccvvbbnnmm".getBytes());
+    @Getter
     private final Key key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
 
     private static final long ACCESS_TOKEN_EXP = 1000L * 60 * 15;   // 15분

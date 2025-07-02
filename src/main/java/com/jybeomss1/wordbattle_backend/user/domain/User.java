@@ -4,10 +4,11 @@ import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.UserJpaEnti
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 public class User {
-    private final String id;
+    private final UUID id;
     private final String name;
     private final String email;
     private final String password;
@@ -18,7 +19,7 @@ public class User {
     private final boolean deleted;
 
     public User(UserJpaEntity userJpaEntity) {
-        this.id = userJpaEntity.getId().toString();
+        this.id = userJpaEntity.getId();
         this.name = userJpaEntity.getName();
         this.email = userJpaEntity.getEmail();
         this.password = userJpaEntity.getPassword();

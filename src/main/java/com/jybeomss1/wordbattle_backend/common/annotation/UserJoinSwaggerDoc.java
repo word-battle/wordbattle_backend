@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
                         mediaType = "application/json",
                         examples = @ExampleObject(
                                 name = "회원가입 실패 예시 응답",
-                                value = "\"해당 사용자는 이미 존재합니다.\""
+                                value = "{\"code\":\"EXIST_USER\",\"message\":\"해당 사용자는 이미 존재합니다.\"}"
                         )
                 )
         )
