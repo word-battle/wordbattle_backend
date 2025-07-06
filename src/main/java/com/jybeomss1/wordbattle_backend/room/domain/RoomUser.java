@@ -14,7 +14,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class RoomUser {
-    private UUID id;
     private UUID userId;
     private String nickname;
     private int score;

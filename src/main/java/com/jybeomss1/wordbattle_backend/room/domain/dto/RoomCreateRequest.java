@@ -21,7 +21,6 @@ public class RoomCreateRequest {
     private String roomName;
     private String password;
     private int quizCount;
-    private UUID userId;
 
     public Room toEntity(RoomUser hostUser, String encodedPassword) {
         boolean hasPassword = password != null && !password.isEmpty();
@@ -31,7 +30,7 @@ public class RoomCreateRequest {
                 .gameCount(quizCount)
                 .status(GameStatus.WAITING)
                 .users(Collections.singletonList(hostUser))
-                .hostUserId(hostUser.getId())
+                .hostUserId(hostUser.getUserId())
                 .hasPassword(hasPassword)
                 .build();
     }

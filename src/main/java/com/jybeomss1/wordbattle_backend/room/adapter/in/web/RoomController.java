@@ -4,6 +4,7 @@ import com.jybeomss1.wordbattle_backend.common.annotation.RoomCreateSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.annotation.RoomDetailSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.annotation.RoomJoinSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.annotation.RoomListSwaggerDoc;
+import com.jybeomss1.wordbattle_backend.common.annotation.JwtAuth;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomCreateUseCase;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomJoinUseCase;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomListUseCase;
@@ -36,6 +37,7 @@ public class RoomController {
     /**
      * 방 생성 API
      */
+    @JwtAuth
     @RoomCreateSwaggerDoc
     @PostMapping("/create")
     public ResponseEntity<RoomListResponse> createRoom(
@@ -50,6 +52,7 @@ public class RoomController {
     /**
      * 방 리스트 조회 API
      */
+    @JwtAuth
     @RoomListSwaggerDoc
     @GetMapping("/list")
     public ResponseEntity<List<RoomListResponse>> getRoomList(@RequestParam(value = "gameStatus", defaultValue = "WAITING") GameStatus gameStatus) {
@@ -59,6 +62,7 @@ public class RoomController {
     /**
      * 방 참가 API
      */
+    @JwtAuth
     @RoomJoinSwaggerDoc
     @PostMapping("/join")
     public ResponseEntity<RoomListResponse> joinRoom(
@@ -73,6 +77,7 @@ public class RoomController {
     /**
      * 방 상세 API
      */
+    @JwtAuth
     @RoomDetailSwaggerDoc
     @GetMapping("/{roomId}")
     public ResponseEntity<RoomDetailResponse> getRoomDetail(@PathVariable String roomId) {

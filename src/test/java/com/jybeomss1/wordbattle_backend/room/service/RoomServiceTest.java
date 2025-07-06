@@ -43,7 +43,6 @@ class RoomServiceTest {
                 .roomName("testRoom")
                 .password("")
                 .quizCount(5)
-                .userId(UUID.randomUUID())
                 .build();
         CustomUserDetails userDetails = Mockito.mock(CustomUserDetails.class);
         Mockito.when(userDetails.getUserId()).thenReturn(UUID.randomUUID());

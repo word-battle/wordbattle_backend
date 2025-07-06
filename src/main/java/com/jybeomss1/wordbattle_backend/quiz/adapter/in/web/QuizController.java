@@ -1,17 +1,18 @@
 package com.jybeomss1.wordbattle_backend.quiz.adapter.in.web;
 
+import com.jybeomss1.wordbattle_backend.common.annotation.JwtAuth;
 import com.jybeomss1.wordbattle_backend.common.annotation.QuizSubmitSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.quiz.application.port.in.QuizSubmitUseCase;
-import com.jybeomss1.wordbattle_backend.quiz.application.service.QuizService;
 import com.jybeomss1.wordbattle_backend.quiz.domain.dto.QuizResponse;
 import com.jybeomss1.wordbattle_backend.quiz.domain.dto.QuizSubmitRequest;
-import com.jybeomss1.wordbattle_backend.game.domain.dto.GameStatusResponse;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/quiz")
@@ -19,6 +20,7 @@ import java.util.UUID;
 public class QuizController {
     private final QuizSubmitUseCase quizSubmitUseCase;
 
+    @JwtAuth
     @QuizSubmitSwaggerDoc
     @PostMapping("/submit")
     public ResponseEntity<QuizResponse> submitQuiz(@RequestBody QuizSubmitRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {

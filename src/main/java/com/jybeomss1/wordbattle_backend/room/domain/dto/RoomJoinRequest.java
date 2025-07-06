@@ -15,6 +15,5 @@ import java.util.UUID;
 @Builder
 public class RoomJoinRequest {
     private UUID roomId;
-    private UUID userId;
     private String password;
 } 

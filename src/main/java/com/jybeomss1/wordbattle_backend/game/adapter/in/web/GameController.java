@@ -1,6 +1,7 @@
 package com.jybeomss1.wordbattle_backend.game.adapter.in.web;
 
 import com.jybeomss1.wordbattle_backend.common.annotation.GameStartSwaggerDoc;
+import com.jybeomss1.wordbattle_backend.common.annotation.JwtAuth;
 import com.jybeomss1.wordbattle_backend.game.application.port.in.GameStartUseCase;
 import com.jybeomss1.wordbattle_backend.game.domain.dto.GameStatusResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class GameController {
     private final GameStartUseCase gameStartUseCase;
 
+    @JwtAuth
     @GameStartSwaggerDoc
     @PostMapping("/start/{roomId}")
     public ResponseEntity<GameStatusResponse> startGame(@PathVariable String roomId) {

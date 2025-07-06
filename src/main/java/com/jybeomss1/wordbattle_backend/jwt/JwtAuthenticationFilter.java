@@ -4,6 +4,7 @@ package com.jybeomss1.wordbattle_backend.jwt;
 import com.jybeomss1.wordbattle_backend.common.exceptions.BaseException;
 import com.jybeomss1.wordbattle_backend.common.exceptions.ErrorCode;
 import com.jybeomss1.wordbattle_backend.user.adapter.out.persistence.RedisRefreshTokenRepository;
+import com.jybeomss1.wordbattle_backend.user.application.service.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,7 +23,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final RedisRefreshTokenRepository redisRefreshTokenRepository;
 
     private static final Set<String> PERMIT_ALL_URIS = Set.of(
@@ -96,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
     private void authenticate(String userId) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
         UsernamePasswordAuthenticationToken auth =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

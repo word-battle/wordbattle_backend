@@ -55,6 +55,9 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
+    doc-expansion: none
+    default-models-expand-depth: -1
+    display-request-duration: true
 
 cors:
   allowed-origin-ip: ${ALLOWED_ORIGIN_IP}
