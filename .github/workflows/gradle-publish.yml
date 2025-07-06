@@ -87,6 +87,7 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          ALLOWED_ORIGIN_IP: ${{ secrets.ALLOWED_ORIGIN_IP }}
 
       - name: Run Docker Container
         run: |
@@ -97,6 +98,7 @@ jobs:
             -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             -e SPRING_PROFILES_ACTIVE=server \
             -e SPRING_REDIS_HOST=redis \
+            -e ALLOWED_ORIGIN_IP=${{ secrets.ALLOWED_ORIGIN_IP }} \
             --network word_battle_net \
             --restart unless-stopped \
             -d -p 8080:8080 \
