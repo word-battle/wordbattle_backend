@@ -56,3 +56,11 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
+cors:
+  allowed-origin-ip: ${ALLOWED_ORIGIN_IP}
+
+# 서버 설정 - 모든 IP에서 접근 허용
+server:
+  port: 8080
+  address: 0.0.0.0
+
