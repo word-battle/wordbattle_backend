@@ -17,7 +17,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserPort userPort;
 
     @Override
-    public UserDetails loadUserByUsername(String userId) {
+    public UserDetails loadUserByUsername(String email) {
+        User user = userPort.findByEmail(email)
+                .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
+        return new CustomUserDetails(user);
+    }
+
+    public UserDetails loadUserById(String userId) {
         User user = userPort.findByUserId(userId)
                 .orElseThrow(() -> new BaseException(ErrorCode.NOT_FOUND_USER));
         return new CustomUserDetails(user);
