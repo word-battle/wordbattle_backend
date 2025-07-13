@@ -26,20 +26,18 @@ import java.lang.annotation.Target;
                                 value = "\"success\""
                         )
                 )
+        ),
+        @ApiResponse(
+                responseCode = "400",
+                description = "회원가입 실패",
+                content = @Content(
+                        mediaType = "application/json",
+                        examples = @ExampleObject(
+                                name = "회원가입 실패 예시 응답",
+                                value = "\"해당 사용자는 이미 존재합니다.\""
+                        )
+                )
         )
-//        ,
-//        @ApiResponse(
-//                responseCode = "400",
-//                description = "회원가입 실패",
-//                content = @Content(
-//                        mediaType = "application/json",
-//                        examples = @ExampleObject(
-//                                name = "회원가입 실패 예시 응답",
-//                                value = "{\"code\":\"EXIST_USER\",\"message\":\"해당 사용자는 이미 존재합니다.\"}"
-//                        )
-//                )
-//        )
 })
-@JwtAuth
 public @interface UserJoinSwaggerDoc {
 }

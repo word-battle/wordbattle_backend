@@ -1,5 +1,6 @@
 package com.jybeomss1.wordbattle_backend.room.domain.dto;
 
+import com.jybeomss1.wordbattle_backend.common.util.JoinCodeGenerator;
 import com.jybeomss1.wordbattle_backend.game.domain.GameStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class RoomCreateRequest {
                 .users(Collections.singletonList(hostUser))
                 .hostUserId(hostUser.getUserId())
                 .hasPassword(hasPassword)
+                .joinCode(JoinCodeGenerator.generateJoinCode())
                 .build();
     }
 } 
