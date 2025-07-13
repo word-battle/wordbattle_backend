@@ -24,5 +24,8 @@ public class RoomUserJpaEntity extends BaseTimeEntity {
     private UUID userId;
 
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private int score;
 } 

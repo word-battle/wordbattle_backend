@@ -47,22 +47,26 @@ public class RoomJpaEntity extends BaseTimeEntity {
     private UUID hostUserId;
 
     public static RoomJpaEntity fromDomain(Room room) {
-        return RoomJpaEntity.builder()
+        RoomJpaEntity roomEntity = RoomJpaEntity.builder()
                 .id(room.getId())
                 .name(room.getName())
                 .password(room.getPassword())
                 .roundCount(room.getRoundCount())
                 .status(room.getStatus())
-                .users(room.getUsers().stream().map(user ->
-                        RoomUserJpaEntity.builder()
-                                .userId(user.getUserId())
-                                .score(user.getScore())
-                                .build()
-                ).collect(java.util.stream.Collectors.toList()))
                 .hasPassword(room.isHasPassword())
                 .hostUserId(room.getHostUserId())
                 .joinCode(room.getJoinCode())
                 .build();
+
+        roomEntity.users = room.getUsers().stream().map(user ->
+                RoomUserJpaEntity.builder()
+                        .room(roomEntity)
+                        .userId(user.getUserId())
+                        .name(user.getName())
+                        .score(user.getScore())
+                        .build()
+        ).collect(java.util.stream.Collectors.toList());
+        return roomEntity;
     }
 
     public Room toDomain() {
@@ -75,6 +79,7 @@ public class RoomJpaEntity extends BaseTimeEntity {
                 .users(this.getUsers().stream().map(u ->
                         RoomUser.builder()
                                 .userId(u.getUserId())
+                                .name(u.getName())
                                 .score(u.getScore())
                                 .build()
                 ).collect(java.util.stream.Collectors.toList()))
