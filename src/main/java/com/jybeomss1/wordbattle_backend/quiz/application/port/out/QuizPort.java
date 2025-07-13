@@ -10,4 +10,6 @@ public interface QuizPort {
     Quiz save(Quiz quiz);
     Optional<Quiz> findById(UUID quizId);
     List<Quiz> findByGameId(UUID gameId);
+    int countByGameId(UUID gameId);
+    Optional<Quiz> findByGameIdAndRoundNumber(UUID gameId, int roundNumber);
 } 

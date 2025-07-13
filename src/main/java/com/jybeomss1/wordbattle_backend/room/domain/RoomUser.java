@@ -15,21 +15,21 @@ import java.util.UUID;
 @Builder
 public class RoomUser {
     private UUID userId;
-    private String nickname;
+    private String name;
     private int score;
 
-    public static RoomUser fromHostInfo(String userId, String nickname) {
+    public static RoomUser fromHostInfo(String userId, String name) {
         return RoomUser.builder()
                 .userId(UUID.fromString(userId))
-                .nickname(nickname)
+                .name(name)
                 .score(0)
                 .build();
     }
 
-    public static RoomUser fromJoinInfo(String userId, String nickname) {
+    public static RoomUser fromJoinInfo(String userId, String name) {
         return RoomUser.builder()
                 .userId(UUID.fromString(userId))
-                .nickname(nickname)
+                .name(name)
                 .score(0)
                 .build();
     }

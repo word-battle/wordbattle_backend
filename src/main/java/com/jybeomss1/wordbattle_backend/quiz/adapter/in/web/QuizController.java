@@ -1,6 +1,5 @@
 package com.jybeomss1.wordbattle_backend.quiz.adapter.in.web;
 
-import com.jybeomss1.wordbattle_backend.common.annotation.JwtAuth;
 import com.jybeomss1.wordbattle_backend.common.annotation.QuizSubmitSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.quiz.application.port.in.QuizSubmitUseCase;
 import com.jybeomss1.wordbattle_backend.quiz.domain.dto.QuizResponse;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuizController {
     private final QuizSubmitUseCase quizSubmitUseCase;
 
-    @JwtAuth
     @QuizSubmitSwaggerDoc
     @PostMapping("/submit")
     public ResponseEntity<QuizResponse> submitQuiz(@RequestBody QuizSubmitRequest request, @AuthenticationPrincipal CustomUserDetails userDetails) {

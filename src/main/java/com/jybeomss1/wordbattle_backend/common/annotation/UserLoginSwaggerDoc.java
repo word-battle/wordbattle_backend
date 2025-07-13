@@ -25,18 +25,20 @@ import java.lang.annotation.Target;
                                 value = "토큰 발급"
                         )
                 )
-        ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "로그인 실패",
-                content = @Content(
-                        mediaType = "application/json",
-                        examples = @ExampleObject(
-                                name = "로그인 실패 예시 응답",
-                                value = "{\"code\":\"LOGIN_FAIL\",\"message\":\"로그인 실패\"}"
-                        )
-                )
         )
+//        ,
+//        @ApiResponse(
+//                responseCode = "400",
+//                description = "로그인 실패",
+//                content = @Content(
+//                        mediaType = "application/json",
+//                        examples = @ExampleObject(
+//                                name = "로그인 실패 예시 응답",
+//                                value = "{\"code\":\"LOGIN_FAIL\",\"message\":\"로그인 실패\"}"
+//                        )
+//                )
+//        )
 })
+@JwtAuth
 public @interface UserLoginSwaggerDoc {
 }

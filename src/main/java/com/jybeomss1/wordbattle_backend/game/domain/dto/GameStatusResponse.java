@@ -20,20 +20,20 @@ public class GameStatusResponse {
     private String roomId;
     private List<RoomUser> users;
     private String gameId;
-    private int currentQuizIndex;
+    private int currentRoundCount;
     private GameStatus status;
 
-    public static GameStatusResponse of(UUID gameId, int currentQuizIndex) {
+    public static GameStatusResponse of(UUID gameId, int currentRoundCount) {
         return GameStatusResponse.builder()
                 .gameId(gameId.toString())
-                .currentQuizIndex(currentQuizIndex)
+                .currentRoundCount(currentRoundCount)
                 .build();
     }
 
     public static GameStatusResponse toStringId(GameStatusResponse response) {
         return GameStatusResponse.builder()
             .gameId(response.getGameId())
-            .currentQuizIndex(response.getCurrentQuizIndex())
+            .currentRoundCount(response.getCurrentRoundCount())
             .build();
     }
 } 

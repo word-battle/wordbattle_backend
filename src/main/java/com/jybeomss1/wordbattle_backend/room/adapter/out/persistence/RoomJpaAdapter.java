@@ -8,9 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * RoomPort 구현체 - DB(JPA) 연동
- */
 @Repository
 @RequiredArgsConstructor
 public class RoomJpaAdapter implements RoomPort {
@@ -35,5 +32,11 @@ public class RoomJpaAdapter implements RoomPort {
         return roomJpaRepository.findAll().stream()
                 .map(RoomJpaEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public Optional<Room> findByJoinCode(String joinCode) {
+        return roomJpaRepository.findByJoinCode(joinCode)
+                .map(RoomJpaEntity::toDomain);
     }
 } 

@@ -2,7 +2,7 @@ package com.jybeomss1.wordbattle_backend.user.adapter.in.web;
 
 import com.jybeomss1.wordbattle_backend.common.annotation.UserJoinSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.annotation.UserLoginSwaggerDoc;
-import com.jybeomss1.wordbattle_backend.common.annotation.JwtAuth;
+import com.jybeomss1.wordbattle_backend.common.annotation.UserLogoutSwaggerDoc;
 import com.jybeomss1.wordbattle_backend.common.response.SuccessResponse;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserJoinUseCase;
 import com.jybeomss1.wordbattle_backend.user.application.port.in.UserLoginUseCase;
@@ -37,7 +37,7 @@ public class UserController {
         return ResponseEntity.ok(userLoginUseCase.login(request.getEmail(), request.getPassword()));
     }
 
-    @JwtAuth
+    @UserLogoutSwaggerDoc
     @PostMapping("/logout")
     public ResponseEntity<SuccessResponse> logout(
             @AuthenticationPrincipal CustomUserDetails userDetails,

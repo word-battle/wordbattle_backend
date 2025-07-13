@@ -1,36 +1,38 @@
 package com.jybeomss1.wordbattle_backend.game.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import com.jybeomss1.wordbattle_backend.room.domain.Room;
+import lombok.*;
+import java.util.List;
 import java.util.UUID;
+import com.jybeomss1.wordbattle_backend.room.domain.Room;
 
-/**
- * 게임(Game) 도메인 모델
- */
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Game {
     private UUID id;
-    private Room room;
-    private int currentQuizIndex;
+    private UUID roomId;
+    private int roundCount;
+    private List<GameUserScore> userScores;
 
-    public static Game of(Room room) {
-        return Game.builder()
-                .room(room)
-                .currentQuizIndex(0)
-                .build();
+    public void addScoreToUser(UUID userId, int score) {
+        for (GameUserScore gus : userScores) {
+            if (gus.getUserId().equals(userId)) {
+                gus.setScore(gus.getScore() + score);
+                return;
+            }
+        }
+        userScores.add(new GameUserScore(userId, score));
     }
 
-    public Game increaseQuizIndex() {
+    public static Game of(Room room) {
+        List<GameUserScore> scores = room.getUsers().stream()
+            .map(u -> new GameUserScore(u.getUserId(), 0))
+            .toList();
         return Game.builder()
-                .id(this.id)
-                .room(this.room)
-                .currentQuizIndex(this.currentQuizIndex + 1)
-                .build();
+            .roomId(room.getId())
+            .roundCount(1) // 첫 라운드로 시작, 필요시 파라미터로 조정
+            .userScores(scores)
+            .build();
     }
 } 

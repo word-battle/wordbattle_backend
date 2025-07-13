@@ -8,11 +8,7 @@ import lombok.NoArgsConstructor;
 import com.jybeomss1.wordbattle_backend.room.domain.Room;
 import com.jybeomss1.wordbattle_backend.room.domain.RoomUser;
 import java.util.Collections;
-import java.util.UUID;
 
-/**
- * 방 생성 요청 DTO
- */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,14 +16,14 @@ import java.util.UUID;
 public class RoomCreateRequest {
     private String roomName;
     private String password;
-    private int quizCount;
+    private int roundCount;
 
     public Room toEntity(RoomUser hostUser, String encodedPassword) {
         boolean hasPassword = password != null && !password.isEmpty();
         return Room.builder()
                 .name(roomName)
                 .password(encodedPassword)
-                .gameCount(quizCount)
+                .roundCount(roundCount)
                 .status(GameStatus.WAITING)
                 .users(Collections.singletonList(hostUser))
                 .hostUserId(hostUser.getUserId())

@@ -22,20 +22,22 @@ import java.lang.annotation.Target;
                         mediaType = "application/json",
                         examples = @ExampleObject(
                                 name = "방 참가 성공 예시",
-                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"roomName\":\"testRoom\",\"quizCount\":5,\"hasPassword\":false}"
-                        )
-                )
-        ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "방 참가 실패",
-                content = @Content(
-                        mediaType = "application/json",
-                        examples = @ExampleObject(
-                                name = "방 참가 실패 예시",
-                                value = "{\"code\":\"ROOM_JOIN_FAIL\",\"message\":\"방 참가 실패: 비밀번호가 틀렸습니다.\"}"
+                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"roomName\":\"testRoom\",\"currentUsers\":2,\"hasPassword\":false,\"roundCount\":5}"
                         )
                 )
         )
+//        ,
+//        @ApiResponse(
+//                responseCode = "400",
+//                description = "방 참가 실패",
+//                content = @Content(
+//                        mediaType = "application/json",
+//                        examples = @ExampleObject(
+//                                name = "방 참가 실패 예시",
+//                                value = "{\"code\":\"ROOM_JOIN_FAIL\",\"message\":\"방 참가 실패\"}"
+//                        )
+//                )
+//        )
 })
-public @interface RoomJoinSwaggerDoc {} 
+@JwtAuth
+public @interface RoomJoinSwaggerDoc {}

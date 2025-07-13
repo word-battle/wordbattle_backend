@@ -15,7 +15,7 @@ import java.util.List;
 public class RoomDetailResponse {
     private String roomId;
     private String roomName;
-    private int gameCount;
+    private int roundCount;
     private boolean hasPassword;
     private List<RoomUser> users;
 
@@ -23,7 +23,7 @@ public class RoomDetailResponse {
         return RoomDetailResponse.builder()
                 .roomId(room.getId().toString())
                 .roomName(room.getName())
-                .gameCount(room.getGameCount())
+                .roundCount(room.getRoundCount())
                 .hasPassword(room.isHasPassword())
                 .users(room.getUsers())
                 .build();
@@ -33,7 +33,7 @@ public class RoomDetailResponse {
         return RoomDetailResponse.builder()
             .roomId(response.getRoomId())
             .roomName(response.getRoomName())
-            .gameCount(response.getGameCount())
+            .roundCount(response.getRoundCount())
             .hasPassword(response.isHasPassword())
             .users(response.getUsers())
             .build();

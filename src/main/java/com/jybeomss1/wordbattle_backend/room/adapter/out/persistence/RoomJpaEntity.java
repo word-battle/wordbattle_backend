@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * 방(Room)의 JPA 엔티티
- */
 @Entity
 @Table(name = "room")
 @Getter
@@ -31,13 +28,16 @@ public class RoomJpaEntity extends BaseTimeEntity {
     private String password;
 
     @Column(nullable = false)
-    private int gameCount;
+    private int roundCount;
 
     @Enumerated(EnumType.STRING)
     private GameStatus status;
 
     @Column(nullable = false)
     private boolean hasPassword;
+
+    @Column(nullable = false, unique = true)
+    private String joinCode;
 
     @Builder.Default
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,7 +51,7 @@ public class RoomJpaEntity extends BaseTimeEntity {
                 .id(room.getId())
                 .name(room.getName())
                 .password(room.getPassword())
-                .gameCount(room.getGameCount())
+                .roundCount(room.getRoundCount())
                 .status(room.getStatus())
                 .users(room.getUsers().stream().map(user ->
                         RoomUserJpaEntity.builder()
@@ -61,6 +61,7 @@ public class RoomJpaEntity extends BaseTimeEntity {
                 ).collect(java.util.stream.Collectors.toList()))
                 .hasPassword(room.isHasPassword())
                 .hostUserId(room.getHostUserId())
+                .joinCode(room.getJoinCode())
                 .build();
     }
 
@@ -69,7 +70,7 @@ public class RoomJpaEntity extends BaseTimeEntity {
                 .id(this.getId())
                 .name(this.getName())
                 .password(this.getPassword())
-                .gameCount(this.getGameCount())
+                .roundCount(this.getRoundCount())
                 .status(this.getStatus())
                 .users(this.getUsers().stream().map(u ->
                         RoomUser.builder()
@@ -79,6 +80,7 @@ public class RoomJpaEntity extends BaseTimeEntity {
                 ).collect(java.util.stream.Collectors.toList()))
                 .hasPassword(this.isHasPassword())
                 .hostUserId(this.getHostUserId())
+                .joinCode(this.getJoinCode())
                 .build();
     }
 } 

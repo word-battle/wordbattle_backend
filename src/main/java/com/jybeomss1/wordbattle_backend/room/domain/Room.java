@@ -21,11 +21,12 @@ public class Room {
     private UUID id;
     private String name;
     private String password;
-    private int gameCount;
+    private int roundCount;
     private GameStatus status;
     private List<RoomUser> users;
     private boolean hasPassword;
     private UUID hostUserId;
+    private String joinCode;
 
     public static Room fromJoin(Room room, RoomUser joinUser) {
         List<RoomUser> updatedUsers = new ArrayList<>(room.getUsers());
@@ -34,10 +35,12 @@ public class Room {
                 .id(room.getId())
                 .name(room.getName())
                 .password(room.getPassword())
-                .gameCount(room.getGameCount())
+                .roundCount(room.getRoundCount())
                 .status(room.getStatus())
                 .users(updatedUsers)
                 .hasPassword(room.isHasPassword())
+                .hostUserId(room.getHostUserId())
+                .joinCode(room.getJoinCode()) // joinCode 반영
                 .build();
     }
 
@@ -46,10 +49,12 @@ public class Room {
                 .id(room.getId())
                 .name(room.getName())
                 .password(room.getPassword())
-                .gameCount(room.getGameCount())
+                .roundCount(room.getRoundCount())
                 .status(status)
                 .users(room.getUsers())
                 .hasPassword(room.isHasPassword())
+                .hostUserId(room.getHostUserId())
+                .joinCode(room.getJoinCode()) // joinCode 반영
                 .build();
     }
 
@@ -58,10 +63,12 @@ public class Room {
                 .id(this.id)
                 .name(this.name)
                 .password(this.password)
-                .gameCount(this.gameCount + 1)
+                .roundCount(this.roundCount + 1)
                 .status(this.status)
                 .users(this.users)
                 .hasPassword(this.hasPassword)
+                .hostUserId(this.hostUserId)
+                .joinCode(this.joinCode) // joinCode 반영
                 .build();
     }
 } 

@@ -6,9 +6,11 @@ import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomJoinUseCase
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomListUseCase;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomDetailUseCase;
 import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomCreateRequest;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomListResponse;
 import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomDetailResponse;
-import com.jybeomss1.wordbattle_backend.common.response.SuccessResponse;
+import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomCreateResponse;
+import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomJoinResponse;
+import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomListResultResponse;
+import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomJoinRequest;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,39 +44,58 @@ class RoomServiceTest {
         RoomCreateRequest request = RoomCreateRequest.builder()
                 .roomName("testRoom")
                 .password("")
-                .quizCount(5)
+                .roundCount(5)
                 .build();
         CustomUserDetails userDetails = Mockito.mock(CustomUserDetails.class);
         Mockito.when(userDetails.getUserId()).thenReturn(UUID.randomUUID());
         Mockito.when(userDetails.getUsername()).thenReturn("tester");
-        RoomListResponse responseDto = RoomListResponse.builder().roomId(UUID.randomUUID().toString()).roomName("testRoom").quizCount(5).hasPassword(false).build();
+        RoomCreateResponse responseDto = RoomCreateResponse.builder().roomId(UUID.randomUUID().toString()).roomName("testRoom").roundCount(5).hasPassword(false).joinCode("ABC123").build();
         Mockito.when(roomCreateUseCase.createRoom(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(responseDto);
-        ResponseEntity<RoomListResponse> response = roomController.createRoom(request, userDetails);
+        ResponseEntity<RoomCreateResponse> response = roomController.createRoom(request, userDetails);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals("testRoom", response.getBody().getRoomName());
+        assertEquals("ABC123", response.getBody().getJoinCode());
     }
 
     @Test
     @DisplayName("방 리스트 조회 성공")
     void getRoomList_success() {
-        RoomListResponse room1 = RoomListResponse.builder().roomId(UUID.randomUUID().toString()).roomName("room1").quizCount(5).hasPassword(false).build();
-        Mockito.when(roomListUseCase.getRoomList(ArgumentMatchers.any())).thenReturn(List.of(room1));
-        ResponseEntity<List<RoomListResponse>> response = roomController.getRoomList(null);
+        RoomListResultResponse.RoomListItem room1 = RoomListResultResponse.RoomListItem.builder().roomId(UUID.randomUUID().toString()).roomName("room1").roundCount(5).hasPassword(false).currentUsers(1).build();
+        RoomListResultResponse listResponse = RoomListResultResponse.builder().rooms(List.of(room1)).build();
+        Mockito.when(roomListUseCase.getRoomList(ArgumentMatchers.any())).thenReturn(listResponse);
+        ResponseEntity<RoomListResultResponse> response = roomController.getRoomList(null);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertFalse(response.getBody().isEmpty());
+        assertFalse(response.getBody().getRooms().isEmpty());
+        assertEquals("room1", response.getBody().getRooms().get(0).getRoomName());
     }
 
     @Test
     @DisplayName("방 상세 조회 성공")
     void getRoomDetail_success() {
         String roomId = UUID.randomUUID().toString();
-        RoomDetailResponse detail = RoomDetailResponse.builder().roomId(roomId).roomName("room1").gameCount(5).hasPassword(false).build();
+        RoomDetailResponse detail = RoomDetailResponse.builder().roomId(roomId).roomName("room1").roundCount(5).hasPassword(false).build();
         Mockito.when(roomDetailUseCase.getRoomDetail(ArgumentMatchers.any())).thenReturn(detail);
         ResponseEntity<RoomDetailResponse> response = roomController.getRoomDetail(roomId);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(roomId, response.getBody().getRoomId());
+    }
+
+    @Test
+    @DisplayName("방 참가 성공")
+    void joinRoom_success() {
+        RoomJoinResponse joinResponse = RoomJoinResponse.builder().roomId(UUID.randomUUID().toString()).roomName("testRoom").roundCount(5).hasPassword(false).currentUsers(2).build();
+        RoomJoinRequest joinRequest = RoomJoinRequest.builder().roomId(UUID.randomUUID()).password("").build();
+        CustomUserDetails userDetails = Mockito.mock(CustomUserDetails.class);
+        Mockito.when(userDetails.getUserId()).thenReturn(UUID.randomUUID());
+        Mockito.when(userDetails.getUsername()).thenReturn("tester");
+        Mockito.when(roomJoinUseCase.joinRoom(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(joinResponse);
+        ResponseEntity<RoomJoinResponse> response = roomController.joinRoom(joinRequest, userDetails);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("testRoom", response.getBody().getRoomName());
+        assertEquals(2, response.getBody().getCurrentUsers());
     }
 } 

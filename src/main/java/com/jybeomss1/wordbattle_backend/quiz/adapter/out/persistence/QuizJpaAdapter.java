@@ -36,4 +36,15 @@ public class QuizJpaAdapter implements QuizPort {
             .map(QuizJpaEntity::toDomain)
             .toList();
     }
+
+    @Override
+    public int countByGameId(UUID gameId) {
+        return quizRepository.countByGameId(gameId);
+    }
+
+    @Override
+    public Optional<Quiz> findByGameIdAndRoundNumber(UUID gameId, int roundNumber) {
+        return quizRepository.findByGameIdAndRoundNumber(gameId, roundNumber)
+            .map(QuizJpaEntity::toDomain);
+    }
 } 

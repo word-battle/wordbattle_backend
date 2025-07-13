@@ -22,20 +22,22 @@ import java.lang.annotation.Target;
                         mediaType = "application/json",
                         examples = @ExampleObject(
                                 name = "방 생성 성공 예시",
-                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"roomName\":\"testRoom\",\"quizCount\":5,\"hasPassword\":false}"
-                        )
-                )
-        ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "방 생성 실패",
-                content = @Content(
-                        mediaType = "application/json",
-                        examples = @ExampleObject(
-                                name = "방 생성 실패 예시",
-                                value = "{\"code\":\"ROOM_NAME_EXISTS\",\"message\":\"이미 존재하는 방 이름입니다.\"}"
+                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"roomName\":\"testRoom\",\"joinCode\":\"ABC123\",\"hasPassword\":false,\"roundCount\":5}"
                         )
                 )
         )
+//        ,
+//        @ApiResponse(
+//                responseCode = "400",
+//                description = "방 생성 실패",
+//                content = @Content(
+//                        mediaType = "application/json",
+//                        examples = @ExampleObject(
+//                                name = "방 생성 실패 예시",
+//                                value = "{\"code\":\"ROOM_NAME_EXISTS\",\"message\":\"이미 존재하는 방 이름입니다.\"}"
+//                        )
+//                )
+//        )
 })
+@JwtAuth
 public @interface RoomCreateSwaggerDoc {} 

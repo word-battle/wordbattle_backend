@@ -7,9 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-/**
- * 퀴즈(Quiz)의 JPA 엔티티
- */
 @Entity
 @Table(name = "quiz")
 @Getter
@@ -34,6 +31,9 @@ public class QuizJpaEntity extends BaseTimeEntity {
     @Column(nullable = false)
     private UUID creatorUserId;
 
+    @Column(nullable = false)
+    private int roundNumber;
+
     public static QuizJpaEntity fromDomain(Quiz quiz, GameJpaEntity gameEntity) {
         return QuizJpaEntity.builder()
                 .id(quiz.getId())
@@ -41,16 +41,18 @@ public class QuizJpaEntity extends BaseTimeEntity {
                 .question(quiz.getQuestion())
                 .answer(quiz.getAnswer())
                 .creatorUserId(quiz.getCreatorUserId())
+                .roundNumber(quiz.getRoundNumber())
                 .build();
     }
 
     public Quiz toDomain() {
         return Quiz.builder()
                 .id(this.getId())
-                .gameId(this.getGame() != null ? this.getGame().getId() : null)
+                .gameId(this.getGame().getId())
                 .question(this.getQuestion())
                 .answer(this.getAnswer())
                 .creatorUserId(this.getCreatorUserId())
+                .roundNumber(this.getRoundNumber())
                 .build();
     }
 } 

@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
 
-/**
- * 퀴즈(Quiz) 도메인 모델
- */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,13 +16,15 @@ public class Quiz {
     private String question;
     private String answer;
     private UUID creatorUserId;
+    private int roundNumber;
 
-    public static Quiz of(UUID gameId, String question, String answer, UUID creatorUserId) {
+    public static Quiz of(UUID gameId, int roundNumber, String question, String answer, UUID userId) {
         return Quiz.builder()
-                .gameId(gameId)
-                .question(question)
-                .answer(answer)
-                .creatorUserId(creatorUserId)
-                .build();
+            .gameId(gameId)
+            .roundNumber(roundNumber)
+            .question(question)
+            .answer(answer)
+            .creatorUserId(userId)
+            .build();
     }
 } 

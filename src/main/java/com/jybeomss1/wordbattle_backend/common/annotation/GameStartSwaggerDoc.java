@@ -22,20 +22,22 @@ import java.lang.annotation.Target;
                         mediaType = "application/json",
                         examples = @ExampleObject(
                                 name = "게임 시작 성공 예시",
-                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"users\":[{\"id\":\"1\",\"userId\":\"user-uuid\",\"nickname\":\"tester\",\"score\":0,\"isHost\":true}],\"gameId\":\"game-uuid\",\"currentQuizIndex\":1,\"status\":\"IN_PROGRESS\"}"
-                        )
-                )
-        ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "게임 시작 실패",
-                content = @Content(
-                        mediaType = "application/json",
-                        examples = @ExampleObject(
-                                name = "게임 시작 실패 예시",
-                                value = "{\"code\":\"GAME_NOT_FOUND\",\"message\":\"게임 시작 실패: 방이 존재하지 않습니다.\"}"
+                                value = "{\"roomId\":\"123e4567-e89b-12d3-a456-426614174000\",\"users\":[{\"userId\":\"user-uuid\",\"score\":0}],\"gameId\":\"game-uuid\",\"currentRoundCount\":1,\"status\":\"IN_PROGRESS\"}"
                         )
                 )
         )
+//        ,
+//        @ApiResponse(
+//                responseCode = "400",
+//                description = "게임 시작 실패",
+//                content = @Content(
+//                        mediaType = "application/json",
+//                        examples = @ExampleObject(
+//                                name = "게임 시작 실패 예시",
+//                                value = "{\"code\":\"GAME_NOT_FOUND\",\"message\":\"게임 시작 실패: 방이 존재하지 않습니다.\"}"
+//                        )
+//                )
+//        )
 })
+@JwtAuth
 public @interface GameStartSwaggerDoc {} 

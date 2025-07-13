@@ -26,11 +26,11 @@ class GameServiceTest {
     @DisplayName("게임 시작 성공")
     void startGame_success() {
         String roomId = UUID.randomUUID().toString();
-        GameStatusResponse responseDto = GameStatusResponse.builder().gameId(UUID.randomUUID().toString()).currentQuizIndex(0).build();
+        GameStatusResponse responseDto = GameStatusResponse.builder().gameId(UUID.randomUUID().toString()).currentRoundCount(0).build();
         Mockito.when(gameStartUseCase.startGame(ArgumentMatchers.any())).thenReturn(responseDto);
         ResponseEntity<GameStatusResponse> response = gameController.startGame(roomId);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals(0, response.getBody().getCurrentQuizIndex());
+        assertEquals(0, response.getBody().getCurrentRoundCount());
     }
 } 

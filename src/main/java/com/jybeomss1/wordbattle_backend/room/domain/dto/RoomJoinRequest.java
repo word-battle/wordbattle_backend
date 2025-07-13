@@ -6,9 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
 
-/**
- * 방 참가 요청 DTO
- */
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

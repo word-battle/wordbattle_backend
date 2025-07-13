@@ -25,17 +25,19 @@ import java.lang.annotation.Target;
                                 value = "{\"quizId\":\"quiz-uuid\",\"gameId\":\"game-uuid\",\"question\":\"문제 내용\",\"answer\":\"정답\",\"creatorUserId\":\"user-uuid\"}"
                         )
                 )
-        ),
-        @ApiResponse(
-                responseCode = "400",
-                description = "퀴즈 제출 실패",
-                content = @Content(
-                        mediaType = "application/json",
-                        examples = @ExampleObject(
-                                name = "퀴즈 제출 실패 예시",
-                                value = "{\"code\":\"QUIZ_ALREADY_EXISTS\",\"message\":\"퀴즈 제출 실패: 이미 출제된 문제입니다.\"}"
-                        )
-                )
         )
+//        ,
+//        @ApiResponse(
+//                responseCode = "400",
+//                description = "퀴즈 제출 실패",
+//                content = @Content(
+//                        mediaType = "application/json",
+//                        examples = @ExampleObject(
+//                                name = "퀴즈 제출 실패 예시",
+//                                value = "{\"code\":\"QUIZ_ALREADY_EXISTS\",\"message\":\"퀴즈 제출 실패: 이미 출제된 문제입니다.\"}"
+//                        )
+//                )
+//        )
 })
+@JwtAuth
 public @interface QuizSubmitSwaggerDoc {} 

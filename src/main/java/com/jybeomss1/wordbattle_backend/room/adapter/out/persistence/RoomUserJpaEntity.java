@@ -5,9 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.UUID;
 
-/**
- * 방에 속한 유저(RoomUser)의 JPA 엔티티
- */
 @Entity
 @Table(name = "room_user")
 @Getter

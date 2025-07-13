@@ -14,7 +14,9 @@ public enum ErrorCode {
     ROOM_FULL(HttpStatus.BAD_REQUEST, "방 인원이 가득 찼습니다."),
     ROOM_PASSWORD_REQUIRED(HttpStatus.BAD_REQUEST, "비밀번호를 입력해야 합니다."),
     ROOM_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
-    GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게임입니다.");
+    GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게임입니다."),
+    GAME_ALREADY_FINISHED(HttpStatus.BAD_REQUEST, "이미 모든 라운드가 종료된 게임입니다."),
+    QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 퀴즈입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
