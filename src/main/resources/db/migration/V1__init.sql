@@ -30,6 +30,7 @@ CREATE TABLE room_user (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     room_id UUID REFERENCES room(id),
     user_id UUID NOT NULL,
+    name VARCHAR(255) NOT NULL,
     score INTEGER NOT NULL,
     created_date TIMESTAMP NOT NULL,
     modified_date TIMESTAMP
