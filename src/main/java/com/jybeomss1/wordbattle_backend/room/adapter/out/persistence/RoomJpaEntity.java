@@ -6,6 +6,7 @@ import com.jybeomss1.wordbattle_backend.room.domain.Room;
 import com.jybeomss1.wordbattle_backend.room.domain.RoomUser;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

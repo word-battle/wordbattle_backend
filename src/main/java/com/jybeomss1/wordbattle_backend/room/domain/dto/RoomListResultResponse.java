@@ -1,39 +1,25 @@
 package com.jybeomss1.wordbattle_backend.room.domain.dto;
 
-import lombok.AllArgsConstructor;
+import com.jybeomss1.wordbattle_backend.room.domain.Room;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class RoomListResultResponse {
-    private List<RoomListItem> rooms;
+    private String roomId;
+    private String roomName;
+    private int currentUserCount;
+    private boolean hasPassword;
+    private String status;
 
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class RoomListItem {
-        private String roomId;
-        private String roomName;
-        private int currentUsers;
-        private boolean hasPassword;
-        private int roundCount;
-    }
-
-    public static RoomListResultResponse fromRooms(List<com.jybeomss1.wordbattle_backend.room.domain.Room> rooms) {
+    public static RoomListResultResponse fromRoom(Room room) {
         return RoomListResultResponse.builder()
-                .rooms(rooms.stream().map(room -> RoomListItem.builder()
-                        .roomId(room.getId().toString())
-                        .roomName(room.getName())
-                        .currentUsers(room.getUsers() != null ? room.getUsers().size() : 0)
-                        .hasPassword(room.isHasPassword())
-                        .roundCount(room.getRoundCount())
-                        .build()).toList())
+                .roomId(room.getId().toString())
+                .roomName(room.getName())
+                .currentUserCount(room.getUsers().size())
+                .hasPassword(room.isHasPassword())
+                .status(room.getStatus().name())
                 .build();
     }
-} 
+}

@@ -1,29 +1,31 @@
 package com.jybeomss1.wordbattle_backend.room.service;
 
+import com.jybeomss1.wordbattle_backend.game.domain.GameStatus;
 import com.jybeomss1.wordbattle_backend.room.adapter.in.web.RoomController;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomCreateUseCase;
+import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomDetailUseCase;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomJoinUseCase;
 import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomListUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomDetailUseCase;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomCreateRequest;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomDetailResponse;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomCreateResponse;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomJoinResponse;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomListResultResponse;
-import com.jybeomss1.wordbattle_backend.room.domain.dto.RoomJoinRequest;
+import com.jybeomss1.wordbattle_backend.room.domain.dto.*;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+
 import java.util.List;
 import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -50,7 +52,7 @@ class RoomServiceTest {
         Mockito.when(userDetails.getUserId()).thenReturn(UUID.randomUUID());
         Mockito.when(userDetails.getUsername()).thenReturn("tester");
         RoomCreateResponse responseDto = RoomCreateResponse.builder().roomId(UUID.randomUUID().toString()).roomName("testRoom").roundCount(5).hasPassword(false).joinCode("ABC123").build();
-        Mockito.when(roomCreateUseCase.createRoom(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(responseDto);
+        Mockito.when(roomCreateUseCase.createRoom(any(), any(), any())).thenReturn(responseDto);
         ResponseEntity<RoomCreateResponse> response = roomController.createRoom(request, userDetails);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -61,14 +63,29 @@ class RoomServiceTest {
     @Test
     @DisplayName("방 리스트 조회 성공")
     void getRoomList_success() {
-        RoomListResultResponse.RoomListItem room1 = RoomListResultResponse.RoomListItem.builder().roomId(UUID.randomUUID().toString()).roomName("room1").roundCount(5).hasPassword(false).currentUsers(1).build();
-        RoomListResultResponse listResponse = RoomListResultResponse.builder().rooms(List.of(room1)).build();
-        Mockito.when(roomListUseCase.getRoomList(ArgumentMatchers.any())).thenReturn(listResponse);
-        ResponseEntity<RoomListResultResponse> response = roomController.getRoomList(null);
+        // given
+        RoomListResultResponse room1 = RoomListResultResponse.builder()
+                .roomId(UUID.randomUUID().toString())
+                .roomName("room1")
+                .hasPassword(false)
+                .currentUserCount(1)
+                .status("WAITING")
+                .build();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<RoomListResultResponse> pageResponse = new PageImpl<>(List.of(room1), pageable, 1);
+
+        Mockito.when(roomListUseCase.getRoomList(any(GameStatus.class), any(Pageable.class)))
+                .thenReturn(pageResponse);
+
+        // when
+        ResponseEntity<Page<RoomListResultResponse>> response = roomController.getRoomList(GameStatus.ALL, pageable);
+
+        // then
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertFalse(response.getBody().getRooms().isEmpty());
-        assertEquals("room1", response.getBody().getRooms().get(0).getRoomName());
+        assertFalse(response.getBody().getContent().isEmpty());
+        assertEquals("room1", response.getBody().getContent().get(0).getRoomName());
+        assertEquals(1, response.getBody().getTotalElements());
     }
 
     @Test
@@ -76,7 +93,7 @@ class RoomServiceTest {
     void getRoomDetail_success() {
         String roomId = UUID.randomUUID().toString();
         RoomDetailResponse detail = RoomDetailResponse.builder().roomId(roomId).roomName("room1").roundCount(5).hasPassword(false).build();
-        Mockito.when(roomDetailUseCase.getRoomDetail(ArgumentMatchers.any())).thenReturn(detail);
+        Mockito.when(roomDetailUseCase.getRoomDetail(any())).thenReturn(detail);
         ResponseEntity<RoomDetailResponse> response = roomController.getRoomDetail(roomId);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
@@ -91,7 +108,7 @@ class RoomServiceTest {
         CustomUserDetails userDetails = Mockito.mock(CustomUserDetails.class);
         Mockito.when(userDetails.getUserId()).thenReturn(UUID.randomUUID());
         Mockito.when(userDetails.getUsername()).thenReturn("tester");
-        Mockito.when(roomJoinUseCase.joinRoom(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(joinResponse);
+        Mockito.when(roomJoinUseCase.joinRoom(any(), any(), any())).thenReturn(joinResponse);
         ResponseEntity<RoomJoinResponse> response = roomController.joinRoom(joinRequest, userDetails);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());

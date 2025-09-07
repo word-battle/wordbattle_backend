@@ -16,6 +16,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/v1/room")
@@ -39,8 +41,11 @@ public class RoomController {
 
     @RoomListSwaggerDoc
     @GetMapping("/list")
-    public ResponseEntity<RoomListResultResponse> getRoomList(@RequestParam(value = "gameStatus", defaultValue = "WAITING") GameStatus gameStatus) {
-        return ResponseEntity.ok(roomListUseCase.getRoomList(gameStatus));
+    public ResponseEntity<Page<RoomListResultResponse>> getRoomList(
+            @RequestParam(value = "gameStatus", defaultValue = "ALL") GameStatus gameStatus,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(roomListUseCase.getRoomList(gameStatus, pageable));
     }
 
     @RoomJoinSwaggerDoc

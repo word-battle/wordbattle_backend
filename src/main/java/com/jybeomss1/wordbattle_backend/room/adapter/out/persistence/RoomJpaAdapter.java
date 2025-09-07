@@ -1,10 +1,13 @@
 package com.jybeomss1.wordbattle_backend.room.adapter.out.persistence;
 
+import com.jybeomss1.wordbattle_backend.game.domain.GameStatus;
 import com.jybeomss1.wordbattle_backend.room.application.port.out.RoomPort;
 import com.jybeomss1.wordbattle_backend.room.domain.Room;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
 import java.util.Optional;
 import java.util.UUID;
 
@@ -17,7 +20,6 @@ public class RoomJpaAdapter implements RoomPort {
     public Room save(Room room) {
         RoomJpaEntity entity = RoomJpaEntity.fromDomain(room);
         RoomJpaEntity saved = roomJpaRepository.save(entity);
-        // RoomJpaEntity → Room 매핑 (toDomain 메서드 사용)
         return saved.toDomain();
     }
 
@@ -28,10 +30,9 @@ public class RoomJpaAdapter implements RoomPort {
     }
 
     @Override
-    public List<Room> findAll() {
-        return roomJpaRepository.findAll().stream()
-                .map(RoomJpaEntity::toDomain)
-                .toList();
+    public Page<Room> findRooms(GameStatus gameStatus, Pageable pageable) {
+        return roomJpaRepository.findRoomsWithPaging(gameStatus, pageable)
+                .map(RoomJpaEntity::toDomain);
     }
 
     @Override

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.util.List;
 
 @Getter
@@ -17,6 +18,7 @@ public class RoomDetailResponse {
     private String roomName;
     private int roundCount;
     private boolean hasPassword;
+    private String hostUserId;
     private List<RoomUser> users;
 
     public static RoomDetailResponse from(Room room) {
@@ -25,17 +27,18 @@ public class RoomDetailResponse {
                 .roomName(room.getName())
                 .roundCount(room.getRoundCount())
                 .hasPassword(room.isHasPassword())
+                .hostUserId(room.getHostUserId().toString())
                 .users(room.getUsers())
                 .build();
     }
 
     public static RoomDetailResponse toStringId(RoomDetailResponse response) {
         return RoomDetailResponse.builder()
-            .roomId(response.getRoomId())
-            .roomName(response.getRoomName())
-            .roundCount(response.getRoundCount())
-            .hasPassword(response.isHasPassword())
-            .users(response.getUsers())
-            .build();
+                .roomId(response.getRoomId())
+                .roomName(response.getRoomName())
+                .roundCount(response.getRoundCount())
+                .hasPassword(response.isHasPassword())
+                .users(response.getUsers())
+                .build();
     }
 } 
