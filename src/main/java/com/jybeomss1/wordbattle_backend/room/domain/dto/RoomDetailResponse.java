@@ -31,14 +31,4 @@ public class RoomDetailResponse {
                 .users(room.getUsers())
                 .build();
     }
-
-    public static RoomDetailResponse toStringId(RoomDetailResponse response) {
-        return RoomDetailResponse.builder()
-                .roomId(response.getRoomId())
-                .roomName(response.getRoomName())
-                .roundCount(response.getRoundCount())
-                .hasPassword(response.isHasPassword())
-                .users(response.getUsers())
-                .build();
-    }
 } 

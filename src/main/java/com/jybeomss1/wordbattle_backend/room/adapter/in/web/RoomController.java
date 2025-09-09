@@ -73,6 +73,6 @@ public class RoomController {
     @RoomDetailSwaggerDoc
     @GetMapping("/detail/{roomId}")
     public ResponseEntity<RoomDetailResponse> getRoomDetail(@PathVariable String roomId) {
-        return ResponseEntity.ok(RoomDetailResponse.toStringId(roomDetailUseCase.getRoomDetail(UUID.fromString(roomId))));
+        return ResponseEntity.ok(roomDetailUseCase.getRoomDetail(UUID.fromString(roomId)));
     }
 } 
