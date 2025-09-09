@@ -17,7 +17,8 @@ public enum ErrorCode {
     GAME_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 게임입니다."),
     GAME_ALREADY_FINISHED(HttpStatus.BAD_REQUEST, "이미 모든 라운드가 종료된 게임입니다."),
     QUIZ_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 퀴즈입니다."),
-    ROOM_LIST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "방 리스트를 불러올 수 없습니다.");
+    ROOM_LIST_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "방 리스트를 불러올 수 없습니다."),
+    USER_NOT_FOUND_IN_ROOM(HttpStatus.NOT_FOUND, "방에 존재하는 않는 유저입니다.");
 
     private final HttpStatus httpStatus;
     private final String message;

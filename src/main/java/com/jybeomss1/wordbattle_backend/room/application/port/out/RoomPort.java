@@ -13,4 +13,5 @@ public interface RoomPort {
     Optional<Room> findById(UUID roomId);
     Page<Room> findRooms(GameStatus gameStatus, Pageable pageable);
     Optional<Room> findByJoinCode(String joinCode);
+    void exitRoom(UUID roomId, UUID userId);
 } 

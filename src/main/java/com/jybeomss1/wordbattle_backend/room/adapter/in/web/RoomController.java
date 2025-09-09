@@ -2,10 +2,7 @@ package com.jybeomss1.wordbattle_backend.room.adapter.in.web;
 
 import com.jybeomss1.wordbattle_backend.common.annotation.*;
 import com.jybeomss1.wordbattle_backend.game.domain.GameStatus;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomCreateUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomDetailUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomJoinUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomListUseCase;
+import com.jybeomss1.wordbattle_backend.room.application.port.in.*;
 import com.jybeomss1.wordbattle_backend.room.domain.dto.*;
 import com.jybeomss1.wordbattle_backend.user.domain.dto.CustomUserDetails;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,6 +24,7 @@ public class RoomController {
     private final RoomJoinUseCase roomJoinUseCase;
     private final RoomListUseCase roomListUseCase;
     private final RoomDetailUseCase roomDetailUseCase;
+    private final RoomExitUseCase roomExitUseCase;
 
     @RoomCreateSwaggerDoc
     @PostMapping("/create")
@@ -75,4 +73,13 @@ public class RoomController {
     public ResponseEntity<RoomDetailResponse> getRoomDetail(@PathVariable String roomId) {
         return ResponseEntity.ok(roomDetailUseCase.getRoomDetail(UUID.fromString(roomId)));
     }
-} 
+
+    @PatchMapping("/exit/{roomId}")
+    public ResponseEntity<String> exitRoom(
+            @PathVariable @NotNull @NotEmpty String roomId,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        roomExitUseCase.exit(UUID.fromString(roomId), userDetails.getUserId());
+        return ResponseEntity.ok("success");
+    }
+}

@@ -3,10 +3,7 @@ package com.jybeomss1.wordbattle_backend.room.application.service;
 import com.jybeomss1.wordbattle_backend.common.exceptions.BaseException;
 import com.jybeomss1.wordbattle_backend.common.exceptions.ErrorCode;
 import com.jybeomss1.wordbattle_backend.game.domain.GameStatus;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomCreateUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomDetailUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomJoinUseCase;
-import com.jybeomss1.wordbattle_backend.room.application.port.in.RoomListUseCase;
+import com.jybeomss1.wordbattle_backend.room.application.port.in.*;
 import com.jybeomss1.wordbattle_backend.room.application.port.out.RoomPort;
 import com.jybeomss1.wordbattle_backend.room.domain.Room;
 import com.jybeomss1.wordbattle_backend.room.domain.RoomUser;
@@ -18,11 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class RoomService implements RoomCreateUseCase, RoomJoinUseCase, RoomListUseCase, RoomDetailUseCase {
+public class RoomService implements RoomCreateUseCase, RoomJoinUseCase, RoomListUseCase, RoomDetailUseCase, RoomExitUseCase {
     private final RoomPort roomPort;
     private final PasswordEncoder passwordEncoder;
 
@@ -105,4 +103,17 @@ public class RoomService implements RoomCreateUseCase, RoomJoinUseCase, RoomList
                 .orElseThrow(() -> new BaseException(ErrorCode.ROOM_NOT_FOUND));
         return RoomDetailResponse.from(room);
     }
-} 
+
+    @Override
+    @Transactional
+    public void exit(UUID roomId, UUID userId) {
+        Room room = roomPort.findById(roomId)
+                .orElseThrow(() -> new BaseException(ErrorCode.ROOM_NOT_FOUND));
+        List<RoomUser> users = room.getUsers();
+        boolean removed = users.removeIf(roomUser -> roomUser.getUserId().equals(userId));
+
+        if (!removed) {
+            throw new BaseException(ErrorCode.USER_NOT_FOUND_IN_ROOM);
+        }
+    }
+}
