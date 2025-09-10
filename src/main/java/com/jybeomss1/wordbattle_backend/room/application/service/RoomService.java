@@ -29,8 +29,10 @@ public class RoomService implements RoomCreateUseCase, RoomJoinUseCase, RoomList
     public RoomCreateResponse createRoom(RoomCreateRequest request, UUID userId, String name) {
 
         RoomUser hostUser = RoomUser.fromHostInfo(userId.toString(), name);
-
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        String encodedPassword = null;
+        if (request.getPassword() != null) {
+            encodedPassword = passwordEncoder.encode(request.getPassword());
+        }
 
         Room room = request.toEntity(hostUser, encodedPassword);
 
@@ -115,5 +117,7 @@ public class RoomService implements RoomCreateUseCase, RoomJoinUseCase, RoomList
         if (!removed) {
             throw new BaseException(ErrorCode.USER_NOT_FOUND_IN_ROOM);
         }
+
+        roomPort.save(room);
     }
 }
